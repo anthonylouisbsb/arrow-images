@@ -15,6 +15,7 @@ $ docker run -d --name "gandiva-dev-env" -v /home/user/arrow:/arrow -v /home/use
 3. Enter in container and execute the script to build the gandiva jar.
 The script is already inside the container.
 ```shell
+$ docker exec -it gandiva-dev-env bash
 $ ./build_gandiva_jar.sh
 ```
 4. You can check the created jar inside the `arrow/java/gandiva/target` 
