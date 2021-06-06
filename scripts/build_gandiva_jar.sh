@@ -84,7 +84,8 @@ ninja install
 popd
 
 java_dir=${arrow_dir}/java
+distribution_dir=${build_dir}/lib
 pushd "${java_dir}"
     # build the gandiva jar skipping the unit tests
-    mvn clean package -T 2C -P arrow-jni -Darrow.cpp.build.dir=${build_dir} -DskipTests -pl gandiva -amd
+    mvn clean package -T 2C -P arrow-jni -Darrow.cpp.build.dir=${distribution_dir} -DskipTests -pl gandiva -amd
 popd
