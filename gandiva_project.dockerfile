@@ -1,12 +1,32 @@
-FROM quay.io/pypa/manylinux2014_x86_64 as base_image
+FROM ubuntu:20.04
 WORKDIR /
 
-RUN yum install -y git flex curl autoconf zip wget java-1.8.0-openjdk-devel && yum clean all
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/
+ARG timezone=America/Sao_Paulo
+ENV TZ=${timezone}
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update -y -q && \ 
+    apt install --no-install-recommends -y -q \
+        git \
+        flex \
+        curl \
+        autoconf \
+        zip \
+        wget \
+        openjdk-11-jdk \
+        maven \
+        python3 \
+        gcc \
+        g++ \
+        pkg-config \ 
+        make \
+        bison && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    ln -s /usr/bin/python3 /usr/bin/python
 
 # Install CMake
 ARG cmake=3.20.3
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v${cmake}/cmake-${cmake}-Linux-${arch_alias}.tar.gz -O - | \
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v${cmake}/cmake-${cmake}-Linux-x86_64.tar.gz -O - | \
     tar -xzf - --directory /usr/local --strip-components=1
 
 # Install Ninja
@@ -31,21 +51,15 @@ RUN mkdir /tmp/ccache && \
     ninja install && \
     rm -rf /tmp/ccache
 
-RUN git clone https://github.com/apache/arrow.git /arrow
-
 # Install vcpkg
 ARG vcpkg
 RUN git clone https://github.com/microsoft/vcpkg /opt/vcpkg && \
     git -C /opt/vcpkg checkout ${vcpkg} && \
     /opt/vcpkg/bootstrap-vcpkg.sh -useSystemBinaries -disableMetrics && \
     ln -s /opt/vcpkg/vcpkg /usr/bin/vcpkg && \
-    rm -rf /arrow
+    git clone https://github.com/apache/arrow.git -b master
 
-# Patch ports files as needed
-COPY ci/vcpkg arrow/ci/vcpkg
-RUN cd /opt/vcpkg && git apply --ignore-whitespace /arrow/ci/vcpkg/ports.patch
-
-ARG build_type=debug
+ARG build_type=release
 ENV CMAKE_BUILD_TYPE=${build_type} \
     VCPKG_FORCE_SYSTEM_BINARIES=1 \
     VCPKG_OVERLAY_TRIPLETS=/arrow/ci/vcpkg \
@@ -88,12 +102,8 @@ RUN vcpkg install --clean-after-build \
         utf8proc \
         zlib \
         zstd \
-        llvm[clang,default-options,target-x86,tools]
-
-ARG python=3.8
-ENV PYTHON_VERSION=${python}
-RUN PYTHON_ROOT=$(find /opt/python -name cp${PYTHON_VERSION/./}-*) && \
-    echo "export PATH=$PYTHON_ROOT/bin:\$PATH" >> /etc/profile.d/python.sh
+        llvm[clang,default-options,target-x86,tools] && \
+    rm -rf /arrow
 
 COPY scripts/build_gandiva_jar.sh /
 
