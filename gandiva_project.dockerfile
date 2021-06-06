@@ -107,7 +107,4 @@ RUN vcpkg install --clean-after-build \
 
 COPY scripts/build_gandiva_jar.sh /
 
-SHELL ["/bin/bash", "-i", "-c"]
-ENTRYPOINT ["/bin/bash", "-i", "-c"]
-
 CMD tail -f /dev/null
