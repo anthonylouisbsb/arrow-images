@@ -86,5 +86,5 @@ popd
 java_dir=${arrow_dir}/java
 pushd "${java_dir}"
     # build the gandiva jar skipping the unit tests
-    mvn clean install -T 2C -P arrow-jni -Darrow.cpp.build.dir=${build_dir} -DskipTests -pl gandiva -amd
+    mvn clean package -T 2C -P arrow-jni -Darrow.cpp.build.dir=${build_dir} -DskipTests -pl gandiva -amd
 popd
