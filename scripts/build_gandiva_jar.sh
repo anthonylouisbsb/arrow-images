@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-arrow_dir=${1}
+arrow_dir=${1:-/arrow}
 build_dir=${2:-${arrow_dir}/cpp/build}
 
 echo "=== Clear output directories and leftovers ==="
