@@ -123,4 +123,4 @@ RUN vcpkg install --clean-after-build \
 
 COPY scripts/build_gandiva_jar.sh /
 
-CMD tail -f /dev/null
+CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config_test_user"]
