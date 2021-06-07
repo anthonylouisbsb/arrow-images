@@ -17,12 +17,28 @@ RUN apt update -y -q && \
         python3 \
         gcc \
         g++ \
+        gdb \
+        rsync \
+        build-essential \
+        ssh \
         pkg-config \ 
         make \
         bison && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \
     ln -s /usr/bin/python3 /usr/bin/python
+
+# Setup ssh keys, that are used to integrate with IDE's
+RUN ( \
+    echo 'LogLevel DEBUG2'; \
+    echo 'PermitRootLogin yes'; \
+    echo 'PasswordAuthentication yes'; \
+    echo 'Subsystem sftp /usr/lib/openssh/sftp-server'; \
+  ) > /etc/ssh/sshd_config_test_user && \
+  mkdir /run/sshd && \
+  useradd -m user \
+  && yes password | passwd user && \
+  usermod -s /bin/bash user
 
 # Install CMake
 ARG cmake=3.20.3
